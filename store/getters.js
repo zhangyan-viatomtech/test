@@ -73,6 +73,64 @@ const getters = { //公共的计算属性
             return obj
         }
     },
+    StartFirmwareUpdate: (state) => { //开始升级固件
+        const content = state.startFirmwareInfo.content
+        console.log(content)
+        if (content) {
+            const deviceType = content.substr(0, 2)
+            const fwVersion = content.substr(2, 6)
+            const size = content.substr(8, 2)
+            let obj = {
+                deviceType,
+                fwVersion,
+                size
+            }
+            return obj
+        }
+    },
+    FirmwareUpdate: (state) => { //固件升级数据
+        const content = state.startFirmwareInfo.content
+        console.log(content)
+        if (content) {
+            const addrOffset = content.substr(0, 2)
+            const fwData = content.substr(2, 2)
+            let obj = {
+                addrOffset,
+                fwData
+            }
+            return obj
+        }
+    },
+    FactoryConfig: (state) => { //烧录出厂信息
+        const content = state.factoryConfigInfo.content
+        if (content) {
+            const burnFlag = content.substr(0, 2)
+            const hwVersion = parseInt(content.substr(2, 2), 16)
+            const branchCode = parseInt(content.substr(4, 16), 16)
+            const len = parseInt(content.substr(20, 2), 16)
+            const serialNum = content.substr(22, 36)
+            let obj = {
+                burnFlag,
+                hwVersion,
+                branchCode,
+                SN: {
+                    len,
+                    serialNum
+                }
+            }
+            return obj
+        }
+    },
+    Temperature: (state) => { //获取主机温度
+        const content = state.temperatureInfo.content
+        if (content) {
+            const temp = parseInt(content.substr(0, 4), 16)
+            let obj = {
+                temp,
+            }
+            return obj
+        }
+    },
     FileList: (state) => { //读文件列表
         const content = state.fileListInfo.content
         console.log('读文件列表:',content)
@@ -146,7 +204,7 @@ const getters = { //公共的计算属性
                 store.commit("getFileData", state.fileData + content)
                 store.commit("getFileOffset", num)
                 const data = intByte16(num)
-                const value = connectData.sendCommand('F3', '00', data)//读文件数据
+                const value = connectData.sendCommand('F3', '00', data)
                 connectData.writeCharacter(value)
             } else if (num === fileSize) {
                 fileData.push(content)
@@ -246,7 +304,7 @@ const getters = { //公共的计算属性
                     let obj = {
                         contentOutput
                     }
-                    const value = connectData.sendCommand('F4', '00', [])//发送结束命令
+                    const value = connectData.sendCommand('F4', '00', [])
                     connectData.writeCharacter(value)
                     store.state.FileReadfinish = true
                     state.ProgressSecond=(num/state.fileSize)*100
@@ -254,7 +312,7 @@ const getters = { //公共的计算属性
                     store.state.startIndex++
                     if(store.state.startIndex < FileListdata.length+1){
                         let data = FileListdata[store.state.startIndex].oldName+ "00000000";
-                        const val= connectData.sendCommand('F2','00',data)//发送开始命令
+                        const val= connectData.sendCommand('F2','00',data)
                         connectData.writeCharacter(val)
                     }
                     return obj
@@ -279,6 +337,31 @@ const getters = { //公共的计算属性
                 userNum,
                 id
             }
+        }
+    },
+    RealTimeWaveform: (state) => { //获取实时波形
+        const content = state.realTimeWaveformInfo.content
+        if (content) {
+            const samplingNum = parseInt(content.substr(0, 4), 16)
+            let waveData = content.substr(4, content.length)
+            let waveDataArray = []
+            for (let i = 0; i < waveData.length; i += 4) {
+                let wave = parseInt(waveData.substring(i, i + 4), 16)
+                console.log(waveData.substring(i, i + 4))
+                console.log(wave)
+                if (wave > 32767) {
+                    wave = wave - 65536
+                } else if (wave == 32767) {
+                    wave = 0
+                }
+                waveDataArray.push(wave)
+            }
+            let obj = {
+                samplingNum,
+                waveDataArray
+            }
+            console.log(obj)
+            return obj
         }
     },
     DeviceRunStatus: (state) => { //获取设备运行状态
@@ -330,7 +413,7 @@ const getters = { //公共的计算属性
                 }
                 wave = wave * (1.0035 * 1800) / (4096 * 178.74)
                 // console.log(wave)
-                data = wavelet_filter_convert(wave,reset) * 2
+                data = wavelet_filter_convert(wave,reset) * 2//过滤波形
                 store.state.waveDataArray.push(data)
                 reset = 0
             }

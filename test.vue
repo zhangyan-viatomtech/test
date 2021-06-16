@@ -46,22 +46,6 @@
           电池状态：{{BatteryInfo}}
         </li>
         <li>
-          <van-button type="info" @click="writeCharacter('E5')">开始升级固件</van-button>
-          开始升级固件：{{StartFirmwareUpdate}}
-        </li>
-        <li>
-          <van-button type="info" @click="writeCharacter('E6')">固件升级数据</van-button>
-          固件升级数据：{{FirmwareUpdate}}
-        </li>
-        <li>
-          <van-button type="info" @click="writeCharacter('EA')">烧录出厂信息</van-button>
-          烧录出厂信息：{{FactoryConfig}}
-        </li>
-        <li>
-          <van-button type="info" @click="writeCharacter('ED')">获取主机温度</van-button>
-          获取主机温度：{{Temperature}}
-        </li>
-        <li>
           <van-button type="info" @click="writeCharacter('F1')">获取文件列表</van-button>
           获取文件列表：{{FileList}}
         </li>
@@ -82,10 +66,6 @@
         <li>
           <van-button type="info" @click="writeCharacter('F9')">用户列表</van-button>
           用户列表： {{ UserList }}
-        </li>
-        <li>
-          <van-button type="info" @click="writeCharacter('01')">获取实时波形</van-button>
-          获取实时波形：{{RealTimeWaveform}}
         </li>
         <li>
           <van-button type="info" @click="writeCharacter('02')">获取设备运行状态</van-button>
